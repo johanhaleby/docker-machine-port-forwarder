@@ -1,6 +1,6 @@
 # Docker Machine Port Forwarding
 
-A small bash script that makes it easier to expose ports between VirtualBox and the host when using [docker-machine](https://docs.docker.com/machine/) on Mac OSX.
+A small bash script that makes it easier to expose ports between VirtualBox and the host when using [docker-machine](https://docs.docker.com/machine/) on Mac OSX. The script is called `pf` which stands for "port forward". You can also read more on this [blog](http://code.haleby.se/2016/04/08/docker-machine-port-forwarding/).
 
 ## Usage
 
@@ -42,7 +42,7 @@ You can also start the port forwarding process in the foreground:
 
 	$ pf 8080 -f
 
-If you do this you'll see the docker-machine and once it's shutdown the port forwarding is also stopped automatically (i.e. no need to run `pf <port> -s`).
+If you do this you'll see the docker-machine and once it's shutdown the port forwarding is also stopped automatically (i.e. no need to run `pf 8080 -s`).
 
 ### Help
 
