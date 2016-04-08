@@ -28,6 +28,14 @@ If you've started port forwarding in the background (default) you can easily sto
 
 Note that you don't need to specify an environment (`-e`) for this to work.
 
+### Port Mapping
+
+You can map the docker port to another port on the host like this:
+
+	$ pf 8090:8080
+
+This will map port 8090 on the host to port 8080 running in the container.
+
 ### Foreground
 
 You can also start the port forwarding process in the foreground:

@@ -16,15 +16,23 @@ where:
     -s, --stop 		Stop the port forwarding process
     -f, --foreground	Run the docker-machine ssh client in foreground instead of background
     -e, --environment	The name of the docker-machine environment (default is default)
-    -q, --quite		Don't print anything to the console, not even errors
-    -hp, --host-port	Set the host port to map the (will map <port> in the virtual machine to host-port on the host)
+    -q, --quite		Don't print anything to the console, not even errors    
 
 examples:
-    ${PROGNAME} 8047 # Port forward port 8047 in docker-machine environment default
-    ${PROGNAME} 8047 -e dev # Port forward port 8047 in docker-machine dev
-    ${PROGNAME} 8047 -f # Runs in foreground (port forwarding is automatically stopped when process is terminated)
-    ${PROGNAME} 8047 -s # Stop the port forwarding for this port
-    ${PROGNAME} 8047 -f -hp 8088 # Runs in foreground and sets host port to 8088 (8088:8047)"
+	# Port forward port 8047 in docker-machine environment default
+	\$ ${PROGNAME} 8047
+
+	# Port forward docker port 8047 to host port 8087 in docker-machine environment default
+	\$ ${PROGNAME} 8087:8047
+
+	# Port forward port 8047 in docker-machine dev
+	\$ ${PROGNAME} 8047 -e dev
+
+	# Runs in foreground (port forwarding is automatically stopped when process is terminated)
+	\$ ${PROGNAME} 8047 -f
+
+	# Stop the port forwarding for this port
+	\$ ${PROGNAME} 8047 -s"
 
 if [ $# -eq 0 ]; then
 	echo "$usage"
@@ -54,9 +62,6 @@ if [ "$#" -ne 0 ]; then
         -e|--environment)
             environment="$2"
             ;;
-        -hp|--hostport)
-            hostport="$2"
-            ;;
         -q|--quite)
             quite="true"
             ;;
@@ -78,12 +83,29 @@ pidport() {
 	lsof -n -i4TCP:$1 | grep --exclude-dir={.bzr,CVS,.git,.hg,.svn} LISTEN
 }
 
+# Check if port contains ":", if so we should split
+if [[ $port == *":"* ]]; then	
+	# Split by :
+	ports=(${port//:/ })
+	if [[ ${#ports[@]} != 2 ]]; then
+		if [[ $quite == "false" ]]; then 
+			echo "Port forwarding should be defined as hostport:targetport, for example: 8090:8080"
+		fi
+		exit 1
+	fi
+
+
+	hostport=${ports[0]}
+	port=${ports[1]}
+fi
+
+
 if [[ ${stop} == "true" ]]; then
-	result=`pidport $port`
+	result=`pidport $hostport`
 
 	if [ -z "${result}"  ]; then
 		if [[ $quite == "false" ]]; then
-			echo "Port $port is not forwarded, cannot stop"
+			echo "Port $hostport is not forwarded, cannot stop"
 		fi		
 		exit 1
 	fi 
@@ -91,14 +113,14 @@ if [[ ${stop} == "true" ]]; then
 	process=`echo "${result}" | awk '{ print $1 }'`
 	if [[ $process != "ssh" ]]; then
 		if [[ $quite == "false" ]]; then 
-			echo "Port $port is bound by process ${process} and not by docker-machine, won't stop"
+			echo "Port $hostport is bound by process ${process} and not by docker-machine, won't stop"
 		fi
 		exit 1
 	fi
 
 	pid=`echo "${result}" | awk '{ print $2 }'` &&
 	kill $pid &&
-	echo "Stopped port forwarding for $port"		
+	echo "Stopped port forwarding for $hostport"		
 else
 	docker-machine ssh $environment `if [[ ${foreground} == "false" ]]; then echo "-f -N"; fi` -L $hostport:localhost:$port && 
 	if [[ $quite == "false" ]] && [[ $foreground == "false" ]]; then
