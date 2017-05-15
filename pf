@@ -6,7 +6,7 @@ port="${1}"
 foreground="false"
 stop="false"
 environment="default"
-quite="false"
+quiet="false"
 hostport="$1"
 
 usage="${PROGNAME} <port> [-h] [-s] [-f] [-e] [-hp] -- Forwards a docker-machine port so that you can access it locally
@@ -16,7 +16,7 @@ where:
     -s, --stop 		Stop the port forwarding process
     -f, --foreground	Run the docker-machine ssh client in foreground instead of background
     -e, --environment	The name of the docker-machine environment (default is default)
-    -q, --quite		Don't print anything to the console, not even errors    
+    -q, --quiet		Don't print anything to the console, not even errors    
 
 examples:
 	# Port forward port 8047 in docker-machine environment default
@@ -62,8 +62,8 @@ if [ "$#" -ne 0 ]; then
         -e|--environment)
             environment="$2"
             ;;
-        -q|--quite)
-            quite="true"
+        -q|--quiet)
+            quiet="true"
             ;;
 		--)
 			break
@@ -88,7 +88,7 @@ if [[ $port == *":"* ]]; then
 	# Split by :
 	ports=(${port//:/ })
 	if [[ ${#ports[@]} != 2 ]]; then
-		if [[ $quite == "false" ]]; then 
+		if [[ $quiet == "false" ]]; then 
 			echo "Port forwarding should be defined as hostport:targetport, for example: 8090:8080"
 		fi
 		exit 1
@@ -104,7 +104,7 @@ if [[ ${stop} == "true" ]]; then
 	result=`pidport $hostport`
 
 	if [ -z "${result}"  ]; then
-		if [[ $quite == "false" ]]; then
+		if [[ $quiet == "false" ]]; then
 			echo "Port $hostport is not forwarded, cannot stop"
 		fi		
 		exit 1
@@ -112,7 +112,7 @@ if [[ ${stop} == "true" ]]; then
 
 	process=`echo "${result}" | awk '{ print $1 }'`
 	if [[ $process != "ssh" ]]; then
-		if [[ $quite == "false" ]]; then 
+		if [[ $quiet == "false" ]]; then 
 			echo "Port $hostport is bound by process ${process} and not by docker-machine, won't stop"
 		fi
 		exit 1
@@ -123,7 +123,7 @@ if [[ ${stop} == "true" ]]; then
 	echo "Stopped port forwarding for $hostport"		
 else
 	docker-machine ssh $environment `if [[ ${foreground} == "false" ]]; then echo "-f -N"; fi` -L $hostport:localhost:$port && 
-	if [[ $quite == "false" ]] && [[ $foreground == "false" ]]; then
+	if [[ $quiet == "false" ]] && [[ $foreground == "false" ]]; then
 		printf "Forwarding port $port"
 		if [[ $hostport -ne $port ]]; then
 			printf " to host port $hostport"
