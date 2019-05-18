@@ -1,6 +1,6 @@
 # Docker Machine Port Forwarding
 
-A small bash script that makes it easier to expose ports between VirtualBox and the host when using [docker-machine](https://docs.docker.com/machine/) on Mac OSX. The script is called `pf` which stands for "port forward". You can also read more on this [blog](http://code.haleby.se/2016/04/08/docker-machine-port-forwarding/).
+A small bash script that makes it easier to expose ports between [docker-machine](https://docs.docker.com/machine/) (VirtualBox or macOS hypervisor like [xhyve](https://github.com/machine-drivers/docker-machine-driver-xhyve), [HyperKit](https://github.com/machine-drivers/docker-machine-driver-hyperkit) etc.) and the host when using Docker Machine on macOS. The script is called `pf` which stands for "port forward". You can also read more on this [blog](http://code.haleby.se/2016/04/08/docker-machine-port-forwarding/).
 
 ## Usage
 
